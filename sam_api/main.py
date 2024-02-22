@@ -2,6 +2,8 @@ import requests
 import os
 import json
 import datetime
+import pandas as pd
+import cleaner
 
 def init_search_terms(limit=10, posted_from="01/01/2024",
                       posted_to=None, ptype=None, ncode=None):
@@ -12,7 +14,7 @@ def init_search_terms(limit=10, posted_from="01/01/2024",
         exit(-1)
     
     if not posted_to:
-        posted_to = datetime.date.today().strftime("%m/%d/%y") 
+        posted_to = datetime.date.today().strftime("%m/%d/%Y") 
 
     terms = {}
     terms['limit'] = limit
@@ -44,9 +46,11 @@ def init_search(terms):
     return search
 
 if __name__=="__main__":
+    DEBUG = True
     
     terms = init_search_terms(ncode=541330, ptype=['r', 'o', 's', 'k'])
     search = init_search(terms)
+    if DEBUG: print(search)
     
     response = requests.get(search)
     results_json = response.json()
@@ -55,7 +59,8 @@ if __name__=="__main__":
         print(results_json.get('error').get('message'))
         print("Exiting with error.")
         exit(1)
-        
+    
+    if DEBUG: print(results_json)
     # sets opp_list to a list of dictionaries, one for each opportunity
     opp_list = results_json['opportunitiesData']
         
@@ -63,7 +68,13 @@ if __name__=="__main__":
         print(opp_dict.get('title'))
         print("___________\n")
         
-    print(opp_list[0])
+    df = pd.DataFrame.from_records(opp_list)
+    if DEBUG:
+        for col in df.columns: print(col)
+    df = cleaner.clean_df(df)
+    date = str(datetime.date.today())
+    df.to_csv(f"./results/{date}.csv")
+    print(df)
 
     
     # print(results.json())
