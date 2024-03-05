@@ -11,7 +11,7 @@ def remove_inactive(df):
      return df
  
 def check_set_aside(df):
-     df = df.loc[((df['typeOfSetAside'] == "SBA") | (df['typeOfSetAside'] == ""))]
+     df = df.loc[(df['typeOfSetAside'] == "SBA") | df['typeOfSetAside'].isnull()]
      return df
 
 def clean_df(df):

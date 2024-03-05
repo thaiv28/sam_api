@@ -63,10 +63,11 @@ if __name__=="__main__":
     if DEBUG: print(results_json)
     # sets opp_list to a list of dictionaries, one for each opportunity
     opp_list = results_json['opportunitiesData']
-        
-    for opp_dict in opp_list:
-        print(opp_dict.get('title'))
-        print("___________\n")
+     
+    if DEBUG:   
+        for opp_dict in opp_list:
+            print(opp_dict.get('title'))
+            print("___________\n")
         
     df = pd.DataFrame.from_records(opp_list)
     if DEBUG:
