@@ -5,7 +5,7 @@ import datetime
 import pandas as pd
 import cleaner
 
-def init_search_terms(limit=10, posted_from="01/01/2024",
+def init_search_terms(limit=100, posted_from=None,
                       posted_to=None, ptype=None, ncode=None):
     api_key = os.getenv('SAM_API_KEY')
     print(api_key)
@@ -15,6 +15,9 @@ def init_search_terms(limit=10, posted_from="01/01/2024",
     
     if not posted_to:
         posted_to = datetime.date.today().strftime("%m/%d/%Y") 
+        
+    if not posted_from:
+        posted_from = posted_to
 
     terms = {}
     terms['limit'] = limit
