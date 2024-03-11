@@ -14,10 +14,15 @@ def check_set_aside(df):
      df = df.loc[(df['typeOfSetAside'] == "SBA") | df['typeOfSetAside'].isnull()]
      return df
 
-def clean_df(df):
+#return valid contracts
+def validate(df):
     df = remove_inactive(df)
     df = check_set_aside(df)
     # MUST BE LAST
     df = remove_cols(df)
     
     return df
+
+def readable(df):
+     #TODO: implement
+     return df

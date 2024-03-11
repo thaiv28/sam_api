@@ -48,8 +48,8 @@ def init_search(terms):
     
     return search
 
-if __name__=="__main__":
-    DEBUG = True
+def main():
+    DEBUG = False
     
     terms = init_search_terms(ncode=541330, ptype=['r', 'o', 's', 'k'])
     search = init_search(terms)
@@ -75,12 +75,15 @@ if __name__=="__main__":
     df = pd.DataFrame.from_records(opp_list)
     if DEBUG:
         for col in df.columns: print(col)
-    df = cleaner.clean_df(df)
+    df = cleaner.validate(df)
     date = str(datetime.date.today())
     df.to_csv(f"./results/{date}.csv")
-    print(df)
-
+    if DEBUG: print(df)
     
-    # print(results.json())
+    return df
+    
+if __name__=="__main__":
+    main()
+
     
     

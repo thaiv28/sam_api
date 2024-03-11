@@ -6,13 +6,18 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+import datetime
+import sam_api as sam_api
+import pandas as pd
+import numpy as np
+import cleaner
+
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 # The ID and range of a sample spreadsheet.
-SAMPLE_SPREEDSHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-SAMPLE_RANGE_NAME = "Class Data!A2:E"
-
+SPREADSHEET_ID = "1aesRU_T-oOfRMUxC2c6zwe9QRYXwAgo9-izYE_dPapI"
+TODAY = datetime.date.today().strftime("%m/%d/%Y")
 
 def setup():
     creds = None
@@ -36,31 +41,62 @@ def setup():
             
     service = build("sheets", "v4", credentials=creds)
     return service
+
+def update_cells(df):
+    values = [df.columns.values.tolist()]
+    values.extend(df.values.tolist())
+
+    return values
+
+def add_sheet_request(requests):
+    # add sheet for today
+    requests.append(
+        {
+            "addSheet":{
+                "properties": {"title": TODAY}
+            }
+        }
+    )
+    return requests
+    
       
 def main():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
-    service = setup(service)
+    DEBUG = True
     
-    # Call the Sheets API
-    sheet = service.spreadsheets()
+    service = setup()
+    batch_requests = []
+    add_sheet_request(batch_requests)
     
-    result = (
-        sheet.values()
-        .get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME)
+    body = {"requests": batch_requests}
+    try:
+        batch_response = (
+            service.spreadsheets()
+            .batchUpdate(spreadsheetId=SPREADSHEET_ID, body=body)
+            .execute()
+        )
+    except Exception:
+        print("Updating sheet instead.")
+    
+    raw_df = sam_api.main()
+    readable_df = cleaner.readable(raw_df)
+    values = update_cells(readable_df)
+    
+    body = {"values": values}
+    if DEBUG:
+        print(body)
+    value_response = (
+        service.spreadsheets().values()
+        .update(spreadsheetId=SPREADSHEET_ID,
+                range=f"'{TODAY}'!A:Z",
+                body=body,
+                valueInputOption="USER_ENTERED")
         .execute()
     )
-    values = result.get("values", [])
-
-    if not values:
-      print("No data found.")
-      return
-
-    print("Name, Major:")
-    for row in values:
-      # Print columns A and E, which correspond to indices 0 and 4.
-      print(f"{row[0]}, {row[4]}")
+    
+    
 
 
 if __name__ == "__main__":
