@@ -11,6 +11,7 @@ import sam_api as sam_api
 import pandas as pd
 import numpy as np
 import cleaner
+import readable
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -64,7 +65,7 @@ def main():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
-    DEBUG = True
+    DEBUG = False
     
     service = setup()
     batch_requests = []
@@ -81,7 +82,7 @@ def main():
         print("Updating sheet instead.")
     
     raw_df = sam_api.main()
-    readable_df = cleaner.readable(raw_df)
+    readable_df = readable.readable(raw_df)
     values = update_cells(readable_df)
     
     body = {"values": values}

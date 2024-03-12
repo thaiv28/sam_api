@@ -23,6 +23,3 @@ def validate(df):
     
     return df
 
-def readable(df):
-     #TODO: implement
-     return df
