@@ -48,10 +48,11 @@ def init_search(terms):
     
     return search
 
-def main():
+def main(start_date, end_date):
     DEBUG = False
     
-    terms = init_search_terms(ncode=541330, ptype=['r', 'o', 's', 'k'])
+    terms = init_search_terms(ncode=541330, ptype=['r', 'o', 's', 'k'], posted_from=start_date,
+                              posted_to=end_date)
     search = init_search(terms)
     if DEBUG: print(search)
     

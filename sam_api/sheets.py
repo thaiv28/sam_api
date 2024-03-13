@@ -12,13 +12,15 @@ import pandas as pd
 import numpy as np
 import cleaner
 import readable
+import getopt, sys
+
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = "1aesRU_T-oOfRMUxC2c6zwe9QRYXwAgo9-izYE_dPapI"
-TODAY = datetime.date.today().strftime("%m/%d/%Y")
+
 
 def setup():
     creds = None
@@ -49,27 +51,47 @@ def update_cells(df):
 
     return values
 
-def add_sheet_request(requests):
+def add_sheet_request(requests, date):
     # add sheet for today
     requests.append(
         {
             "addSheet":{
-                "properties": {"title": TODAY}
+                "properties": {"title": date}
             }
         }
     )
     return requests
-    
+
+
       
 def main():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
+    
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "dys:e:", ["date=", "yesterday", "start=", "end="])
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(2)
+        
+    yesterday = False
+    
+    for option, arg in opts:
+        match option:
+            case "-y":
+                yesterday = True
+            case "--yesterday":
+                yesterday = True
+                
+    if yesterday:
+        yes = datetime.date.today() - datetime.timedelta(days=1)
+        date = yes.strftime("%m/%d/%Y")
+    else:
+        date = datetime.date.today().strftime("%m/%d/%Y")
+    
     DEBUG = False
     
     service = setup()
     batch_requests = []
-    add_sheet_request(batch_requests)
+    add_sheet_request(batch_requests, date)
     
     body = {"requests": batch_requests}
     try:
@@ -81,7 +103,7 @@ def main():
     except Exception:
         print("Updating sheet instead.")
     
-    raw_df = sam_api.main()
+    raw_df = sam_api.main(date, date)
     readable_df = readable.readable(raw_df)
     values = update_cells(readable_df)
     
@@ -91,7 +113,7 @@ def main():
     value_response = (
         service.spreadsheets().values()
         .update(spreadsheetId=SPREADSHEET_ID,
-                range=f"'{TODAY}'!A:Z",
+                range=f"'{date}'!A:Z",
                 body=body,
                 valueInputOption="USER_ENTERED")
         .execute()
