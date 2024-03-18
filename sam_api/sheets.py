@@ -51,12 +51,12 @@ def update_cells(df):
 
     return values
 
-def add_sheet_request(requests, date):
+def add_sheet_request(requests, date_str):
     # add sheet for today
     requests.append(
         {
             "addSheet":{
-                "properties": {"title": date}
+                "properties": {"title": date_str}
             }
         }
     )
@@ -82,16 +82,19 @@ def main():
                 yesterday = True
                 
     if yesterday:
-        yes = datetime.date.today() - datetime.timedelta(days=1)
-        date = yes.strftime("%m/%d/%Y")
+        date = datetime.date.today() - datetime.timedelta(days=1)
+        if(datetime.date.today().weekday() == 0):
+            date = date - datetime.timedelta(days=2)
     else:
-        date = datetime.date.today().strftime("%m/%d/%Y")
+        date = datetime.date.today()
+        
+    date_str = date.strftime("%m/%d/%Y")
     
     DEBUG = False
     
     service = setup()
     batch_requests = []
-    add_sheet_request(batch_requests, date)
+    add_sheet_request(batch_requests, date_str)
     
     body = {"requests": batch_requests}
     try:
@@ -113,7 +116,7 @@ def main():
     value_response = (
         service.spreadsheets().values()
         .update(spreadsheetId=SPREADSHEET_ID,
-                range=f"'{date}'!A:Z",
+                range=f"'{date_str}'!A:Z",
                 body=body,
                 valueInputOption="USER_ENTERED")
         .execute()

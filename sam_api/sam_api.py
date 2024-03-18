@@ -51,8 +51,11 @@ def init_search(terms):
 def main(start_date, end_date):
     DEBUG = False
     
-    terms = init_search_terms(ncode=541330, ptype=['r', 'o', 's', 'k'], posted_from=start_date,
-                              posted_to=end_date)
+    start_date_str = start_date.strftime("%m/%d/%Y")
+    end_date_str = end_date.strftime("%m/%d/%Y")
+    
+    terms = init_search_terms(ncode=541330, ptype=['r', 'o', 's', 'k'], posted_from=start_date_str,
+                              posted_to=end_date_str)
     search = init_search(terms)
     if DEBUG: print(search)
     
@@ -77,8 +80,7 @@ def main(start_date, end_date):
     if DEBUG:
         for col in df.columns: print(col)
     df = cleaner.validate(df)
-    date = str(datetime.date.today())
-    df.to_csv(f"./results/{date}.csv")
+    df.to_csv(f"./results/{start_date.isoformat()}.csv")
     if DEBUG: print(df)
     
     return df
