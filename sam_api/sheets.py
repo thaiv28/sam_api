@@ -67,12 +67,13 @@ def add_sheet_request(requests, date_str):
 def main():
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "dys:e:", ["date=", "yesterday", "start=", "end="])
+        opts, args = getopt.getopt(sys.argv[1:], "dys:e:c:", ["date=", "yesterday", "start=", "end="])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
         
     yesterday = False
+    change_dir = False
     
     for option, arg in opts:
         match option:
@@ -80,7 +81,13 @@ def main():
                 yesterday = True
             case "--yesterday":
                 yesterday = True
+            case "-c": 
+                change_dir = True
+                dir = arg
                 
+    if change_dir:
+        os.chdir(dir)        
+        
     if yesterday:
         date = datetime.date.today() - datetime.timedelta(days=1)
         if(datetime.date.today().weekday() == 0):
