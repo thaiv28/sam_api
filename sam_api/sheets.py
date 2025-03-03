@@ -76,15 +76,14 @@ def main():
     change_dir = False
     
     for option, arg in opts:
-        match option:
-            case "-y":
-                yesterday = True
-            case "--yesterday":
-                yesterday = True
-            case "-c": 
-                change_dir = True
-                dir = arg
-                
+        if(option == '-y'):
+            yesterday = True
+        elif(option == "--yesterday"):
+            yesterday = True
+        elif(option == "-c"):
+            change_dir = True
+            dir = arg
+
     if change_dir:
         os.chdir(dir)        
         

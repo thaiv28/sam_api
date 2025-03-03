@@ -5,6 +5,7 @@ import datetime
 import pandas as pd
 import cleaner
 
+
 def init_search_terms(limit=100, posted_from=None,
                       posted_to=None, ptype=None, ncode=None):
     api_key = os.getenv('SAM_API_KEY')
